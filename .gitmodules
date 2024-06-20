@@ -1,0 +1,3 @@
+[submodule "edep-sim/edep-sim-source"]
+	path = edep-sim/edep-sim-source
+	url = https://github.com/NuTufts/edep-sim.git
