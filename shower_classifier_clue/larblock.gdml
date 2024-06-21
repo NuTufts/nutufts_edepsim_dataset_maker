@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE gdml [
+]>
+
+<gdml xmlns:gdml="http://cern.ch/2001/Schemas/GDML"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="../schema/gdml.xsd">
+
+  <define>
+
+    <quantity name="World_Dx"      unit="mm" value="70000.0"/>
+    <quantity name="World_Dy"      unit="mm" value="70000.0"/>
+    <quantity name="World_Dz"      unit="mm" value="70000.0"/>
+
+    <!-- LAr Block -->
+    <quantity name="LAr_Dx" unit="mm" value="10000"/>
+    <quantity name="LAr_Dy" unit="mm" value="10000"/>
+    <quantity name="LAr_Dz" unit="mm" value="10000"/>    
+    <position name="center" x="0.0" y="0.0" z="0.0" unit="mm"/>
+    <rotation name="eye"    unit="deg" z="0.0"/>
+  </define>
+
+  <materials>
+    <!-- ELEMENTS -->
+    <element name="Nitrogen" formula="N" Z="7."> <atom value="14.01"/> </element>  
+    <element name="Oxygen" formula="O" Z="8."> <atom value="16.0"/> </element>    
+    <element name="Argon40" formula="Ar40" Z="18."> <atom value="40.0"/> </element>
+    <element name="Argon38" formula="Ar38" Z="18."> <atom value="38.0"/> </element>
+    <element name="Argon36" formula="Ar36" Z="18."> <atom value="36.0"/> </element>        
+    <!-- MATERIALS -->
+    <material name="LArgon" formula="LAr">
+      <D value="1.4" unit="g/cm3"/>
+      <fraction n="0.99600" ref="Argon40"/>
+      <fraction n="0.00337" ref="Argon36"/>
+      <fraction n="0.00063" ref="Argon38"/>      
+    </material>
+    <material name="Vacuum">
+      <D value="0.0000001" unit="mg/cm3"/>
+      <fraction n="0.7" ref="Nitrogen"/>
+      <fraction n="0.3" ref="Oxygen"/>
+    </material>
+  </materials>
+  
+  <!-- SOLIDS -->
+  <solids>
+
+    <!-- WORLD -->
+    <box name="WorldSolid" x="World_Dx" y="World_Dy" z="World_Dz"/>
+    <box name="LArSolid"   x="LAr_Dx"   y="LAr_Dy"   z="LAr_Dz" />
+    
+  </solids>
+
+  <!-- STUCTURES -->
+  <structure>
+
+    <volume name="volLArD">
+      <materialref ref="LArgon"/>
+      <solidref ref="LArSolid"/>
+      <auxiliary auxtype="SensDet" auxvalue="drift"/>
+      <auxiliary auxtype="EField" auxvalue="(500.0 V/cm, 0.0 V/m, 0.0 V/m)"/>
+    </volume>
+        
+    <volume name="World">
+      <materialref ref="Vacuum"/>
+      <solidref ref="WorldSolid"/>
+      <physvol name="pvLArD">
+	<volumeref ref="volLArD"/>
+        <positionref ref="center"/>
+        <!-- <rotationref ref="eye"/> -->
+      </physvol>
+    </volume>
+    
+  </structure>
+
+  <setup name="Test" version="1.0">
+    <world ref="World"/>
+  </setup>
+  
+</gdml>

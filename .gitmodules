@@ -1,3 +1,6 @@
 [submodule "edep-sim/edep-sim-source"]
 	path = edep-sim/edep-sim-source
 	url = https://github.com/NuTufts/edep-sim.git
+[submodule "version2"]
+	path = version2
+	url = https://github.com/vectorclass/version2.git

@@ -1,0 +1,40 @@
+# Create electrons with momenta drawn from a uniform distribution
+
+/edep/random/timeRandomSeed
+
+# set edep
+/edep/db/set/saveAllPrimTraj true
+/edep/db/set/lengthThreshold 0.5 mm
+/edep/db/set/trajectoryAccuracy 0.5 mm
+/edep/db/set/neutronThreshold 10 MeV
+/edep/db/set/gammaThreshold 5.0 MeV
+/edep/hitLength LArD 0.5 mm
+/edep/hitLength drift 0.5 mm
+/edep/hitLength cryo 0.5 mm
+/edep/phys/allCuts 0.5 mm
+/edep/update
+
+# Set generator
+/gps/particle e-
+#/gps/particle gamma
+/gps/position 0.0 0.0 -50.0 cm
+/gps/ene/type Mono
+/gps/ene/mono 100 MeV
+#/gps/ene/type Lin
+#/gps/ene/min 10 MeV
+#/gps/ene/max 200 MeV
+#/gps/ene/gradient 0.0
+#/gps/ene/intercept 1.0
+/gps/direction 0.0 0.0 1.0
+
+/control/verbose 1
+/run/verbose 1
+/tracking/verbose 1
+/event/verbose 1
+
+/run/initialize
+
+# Turn off optical processes
+/process/inactivate Cerenkov
+
+#/run/beamOn 1

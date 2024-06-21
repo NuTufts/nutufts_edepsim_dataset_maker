@@ -10,6 +10,15 @@ MACHINE=`uname --nodename`
 export EDEPSIM_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/edep-sim/EDepSim
 export EDEPSIM_BUILD_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/edep-sim/build
 export EDEPSIM_SOURCE_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/edep-sim/edep-sim-source
+export EDEPSIM_BIN_DIR=${EDEPSIM_DIR}/bin
+export EDEPSIM_LIB_DIR=${EDEPSIM_DIR}/lib
+export EDEPSIM_INCLUDE_DIR=${EDEPSIM_DIR}/include
+export EDEPTLY_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/edeptly
+export VECTORCLASS_INCLUDE_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/vectorclass
+
+[[ ":$PATH:" != *":${EDEPSIM_BIN_DIR}:"* ]] && export PATH="${EDEPSIM_BIN_DIR}:${PATH}"
+[[ ":$LD_LIBRARY_PATH:" != *":${EDEPSIM_LIB_DIR}:"* ]] && export LD_LIBRARY_PATH="${EDEPSIM_LIB_DIR}:${LD_LIBRARY_PATH}"
+[[ ":$PYTHONPATH:" != *":${EDEPTLY_DIR}:"* ]] && export PYTHONPATH="${EDEPTLY_DIR}:${PYTHONPATH}"
 
 if [ $MACHINE == "trex" ]
 then
@@ -110,6 +119,7 @@ else
     export OPENCV_LIBDIR=/usr/local/lib
     
 fi
+
 
 # LIBTORCH
 # location below is typically where running `pip install torch` will put pytorch

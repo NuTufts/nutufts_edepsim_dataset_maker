@@ -8,7 +8,7 @@ Our test case is a classifier separating three particle types:
 * photons
 * e+/e- pairs produced according to some dark sector model
 
-### Proof of principle dataset
+### Dataset Definition
 
 To do proof of principle studies, we'll start with images that remove some degrees of freedom that are not important to testing out the ideas of this project.
 
@@ -25,3 +25,14 @@ We will need to keep the following meta-data
 
 We will save the info using Petastorm repository.
 This is based on pyspark and provides a fairly convenient way to load data into the network.
+
+## Steps
+
+* We run edep-sim to generate electron and photon simulations
+* We use a script to convert info into the petastorm dataset database
+
+When making a large dataset, we'll use the grid to run the two steps over many nodes.
+We will also help the structure of the database by splitting it by jobid.
+
+
+
