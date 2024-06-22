@@ -15,10 +15,14 @@ export EDEPSIM_LIB_DIR=${EDEPSIM_DIR}/lib
 export EDEPSIM_INCLUDE_DIR=${EDEPSIM_DIR}/include
 export EDEPTLY_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/edeptly
 export VECTORCLASS_INCLUDE_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/vectorclass
+export SIMPLEDET_LIB_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/simpledet/build/lib/
+export SIMPLEDET_PYTHON_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/simpledet/python/
 
 [[ ":$PATH:" != *":${EDEPSIM_BIN_DIR}:"* ]] && export PATH="${EDEPSIM_BIN_DIR}:${PATH}"
 [[ ":$LD_LIBRARY_PATH:" != *":${EDEPSIM_LIB_DIR}:"* ]] && export LD_LIBRARY_PATH="${EDEPSIM_LIB_DIR}:${LD_LIBRARY_PATH}"
 [[ ":$PYTHONPATH:" != *":${EDEPTLY_DIR}:"* ]] && export PYTHONPATH="${EDEPTLY_DIR}:${PYTHONPATH}"
+[[ ":$PYTHONPATH:" != *":${SIMPLEDET_PYTHON_DIR}:"* ]] && export PYTHONPATH="${SIMPLEDET_PYTHON_DIR}:${PYTHONPATH}"
+[[ ":$LD_LIBRARY_PATH:" != *":${SIMPLEDET_LIB_DIR}:"* ]] && export LD_LIBRARY_PATH="${SIMPLEDET_LIB_DIR}:${LD_LIBRARY_PATH}"
 
 if [ $MACHINE == "trex" ]
 then
@@ -79,7 +83,8 @@ then
 elif [ $MACHINE == "pop-os" ]
 then
     echo "SETUP TARITREE's RAZER BLADE PRO"
-    source /home/twongjirad/software/root/build_gcc11/bin/thisroot.sh
+    #source /home/twongjirad/software/root/build_gcc11/bin/thisroot.sh
+    source /usr/local/root_6.32.02/bin/thisroot.sh
 
     export CUDA_HOME=/usr/lib/cuda/
     [[ ":$LD_LIBRARY_PATH:" != *":${CUDA_HOME}/lib64:"* ]] && export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
