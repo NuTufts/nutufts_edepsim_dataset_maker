@@ -6,7 +6,7 @@ from simpledet import simpledet
 IEdepSim = simpledet.edepsim.EDepSimInterface()
 print(IEdepSim)
 
-inputfile = rt.TFile("test.root","open")
+inputfile = rt.TFile("test_100MeV_e.root","open")
 edeptree = inputfile.Get("EDepSimEvents")
 
 nentries = edeptree.GetEntries()
@@ -25,7 +25,7 @@ for ientry in range(nentries):
     c1.Update()
     print("[ENTER] to continue")
     input()
-    break
+
 
 
 

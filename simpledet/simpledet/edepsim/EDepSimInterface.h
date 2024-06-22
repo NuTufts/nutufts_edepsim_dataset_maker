@@ -14,7 +14,7 @@ namespace edepsim {
     virtual ~EDepSimInterface() {};
 
     TH2D processSegmentHits( const TG4HitSegmentContainer& hit_container );
-    
+
   };
   
 }
