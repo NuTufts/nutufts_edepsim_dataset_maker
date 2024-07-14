@@ -26,6 +26,8 @@ set(includes
 include_directories(
   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
   $ENV{EDEPSIM_INCLUDE_DIR}
+  ${PYTHON_INCLUDE_PATH}
+  ${NUMPY_INCLUDES}
   )
 
 # Build the dictionary for the i/o classes.
@@ -40,7 +42,7 @@ add_library(${LIBNAME} SHARED ${source} G__${LIBNAME}.cxx)
 target_include_directories(${LIBNAME} PUBLIC
   "$<INSTALL_INTERFACE:include/simpledet>")
 
-target_link_libraries(${LIBNAME} PUBLIC EDepSim::edepsim_io ${ROOT_LIBRARIES})
+target_link_libraries(${LIBNAME} PUBLIC EDepSim::edepsim_io ${ROOT_LIBRARIES} ${PYTHON_LIBRARIES} )
 
 # Install the library
 install(TARGETS ${LIBNAME}

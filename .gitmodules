@@ -4,3 +4,6 @@
 [submodule "version2"]
 	path = version2
 	url = https://github.com/vectorclass/version2.git
+[submodule "petastorm"]
+	path = petastorm
+	url = https://github.com/NuTufts/petastorm.git

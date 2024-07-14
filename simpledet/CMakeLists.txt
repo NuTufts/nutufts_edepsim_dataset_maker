@@ -39,9 +39,9 @@ set( VECTORCLASS_INCLUDE_DIR $ENV{VECTORCLASS_INCLUDE_DIR} )
 
 
 #---Python
-#find_package( PythonInterp 3 REQUIRED )
-#find_package( PythonLibs 3 REQUIRED )
-#execute_process( COMMAND python3 -c "import numpy; print(numpy.get_include())" OUTPUT_VARIABLE NUMPY_INCLUDES OUTPUT_STRIP_TRAILING_WHITESPACE )    
+find_package( PythonInterp 3 REQUIRED )
+find_package( PythonLibs 3 REQUIRED )
+execute_process( COMMAND python3 -c "import numpy; print(numpy.get_include())" OUTPUT_VARIABLE NUMPY_INCLUDES OUTPUT_STRIP_TRAILING_WHITESPACE )    
 
 #---Eigen
 #find_package(Eigen3 REQUIRED)

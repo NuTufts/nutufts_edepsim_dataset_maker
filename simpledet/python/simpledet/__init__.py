@@ -7,3 +7,4 @@ for l in [x for x in os.listdir(simpledet_dir) if x.endswith('.so')]:
     print("load simplet lib: ",l)
     ROOT.gSystem.Load(l)
 from ROOT import simpledet
+
