@@ -18,11 +18,11 @@ SimpleDetShowerSchema_v0 = Unischema("SimpleDetShowerSchema",[
     UnischemaField('partition',np.string_, (), ScalarCodec(StringType()), False ), # label to divide the local database into folders. Allows us to split DB maker into jobs.
     UnischemaField('runid', np.int32, (), ScalarCodec(IntegerType()), False), # numerical index to divide database generation
     UnischemaField('entry', np.int64, (), ScalarCodec(IntegerType()), False), # numerical index to label entry for a given runid
-    UnischemaField('pdgcodge', np.int32, (), ScalarCodec(IntegerType()), False), # particle type label
+    UnischemaField('pdgcode', np.int32, (), ScalarCodec(IntegerType()), False), # particle type label
     UnischemaField('depth', np.float32, (), ScalarCodec(FloatType()), False), # simulated distance from readout plane, determines transverse smearing
-    UnischemaField('momentum4', np.float32, (None,4), NdarrayCodec(), False), # simulated distance from readout plane, determines transverse smearing
+    UnischemaField('momentum4', np.float32, (4,), NdarrayCodec(), False), # simulated distance from readout plane, determines transverse smearing
     UnischemaField('preedeplen',np.float32, (), ScalarCodec(FloatType()), False), # distance from particle start to where first energy deposit occurs (relevant to photon)
-    UnischemaField('dedx_20pix', np.float32, (None,20), NdarrayCodec(), False), # dedx in first 20 pixels of start of energy deposition
+    UnischemaField('dedx_20pix', np.float32, (20,), NdarrayCodec(), False), # dedx in first 20 pixels of start of energy deposition
 ])
 
 SchemaDict = {"v0":SimpleDetShowerSchema_v0}

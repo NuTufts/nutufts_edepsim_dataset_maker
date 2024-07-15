@@ -32,7 +32,8 @@ namespace edepsim {
     float max_gridpt[2];
     
     float max_step_size;
-
+    float distance_to_readout_plane;
+    
   private:
 
     static bool __loaded_numpy;

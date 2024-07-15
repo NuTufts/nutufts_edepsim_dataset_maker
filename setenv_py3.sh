@@ -15,14 +15,17 @@ export EDEPSIM_LIB_DIR=${EDEPSIM_DIR}/lib
 export EDEPSIM_INCLUDE_DIR=${EDEPSIM_DIR}/include
 export EDEPTLY_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/edeptly
 export VECTORCLASS_INCLUDE_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/vectorclass
-export SIMPLEDET_LIB_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/simpledet/build/lib/
-export SIMPLEDET_PYTHON_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/simpledet/python/
+export SIMPLEDET_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/simpledet/
+export SIMPLEDET_LIB_DIR=${SIMPLEDET_DIR}/build/lib/
+export SIMPLEDET_PYTHON_DIR=${SIMPLEDET_DIR}/python/
+export PETASTORM_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/petastorm/
 
 [[ ":$PATH:" != *":${EDEPSIM_BIN_DIR}:"* ]] && export PATH="${EDEPSIM_BIN_DIR}:${PATH}"
 [[ ":$LD_LIBRARY_PATH:" != *":${EDEPSIM_LIB_DIR}:"* ]] && export LD_LIBRARY_PATH="${EDEPSIM_LIB_DIR}:${LD_LIBRARY_PATH}"
 [[ ":$PYTHONPATH:" != *":${EDEPTLY_DIR}:"* ]] && export PYTHONPATH="${EDEPTLY_DIR}:${PYTHONPATH}"
 [[ ":$PYTHONPATH:" != *":${SIMPLEDET_PYTHON_DIR}:"* ]] && export PYTHONPATH="${SIMPLEDET_PYTHON_DIR}:${PYTHONPATH}"
 [[ ":$LD_LIBRARY_PATH:" != *":${SIMPLEDET_LIB_DIR}:"* ]] && export LD_LIBRARY_PATH="${SIMPLEDET_LIB_DIR}:${LD_LIBRARY_PATH}"
+[[ ":$PYTHONPATH:" != *":${PETASTORM_DIR}:"* ]] && export PYTHONPATH="${PETASTORM_DIR}:${PYTHONPATH}"
 
 if [ $MACHINE == "trex" ]
 then

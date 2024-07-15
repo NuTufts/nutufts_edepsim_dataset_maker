@@ -46,7 +46,7 @@ namespace edepsim {
     }
     
     max_step_size = 0.03;
-    
+    distance_to_readout_plane = 128.0;
   }
   
   std::vector<float> EDepSimInterface::processSegmentHits( const TG4HitSegmentContainer& hit_container )
@@ -145,7 +145,7 @@ namespace edepsim {
 	
 	float dz_offset = planepos[0]-pixcenter[0];
 	float dy_offset = planepos[1]-pixcenter[1];
-	float sigma = (midpt[0]+125.0)*(0.25/256.0);
+	float sigma = (midpt[0]+distance_to_readout_plane)*(0.25/256.0);
 	// std::cout << "------------------------" << std::endl;
 	// std::cout << "midpt: " << midpt[2] << " " << midpt[1] << std::endl;
 	// std::cout << "pos: " << pos[0] << " " << pos[1] << std::endl;

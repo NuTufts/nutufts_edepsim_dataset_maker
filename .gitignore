@@ -1,2 +1,4 @@
 *~
 */.ipynb_checkpoints/*
+*.root
+simpledet/build/*
