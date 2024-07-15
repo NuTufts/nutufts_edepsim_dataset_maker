@@ -90,13 +90,38 @@ data = []
 for ientry in range(nentries):
 
     edeptree.GetEntry(ientry)
+    print("=========================================")
+    print("[ENTRY ",ientry,"]")
+          
 
+    # Get Primary Information
+    prim_v = edeptree.Event.Primaries
+    print("number of primary vertices: ",prim_v.size())
+    prim_mom4_v = []
+    for ivertex in range(prim_v.size()):
+        print("VERTEX[",ivertex,"]")
+        for iprim in range(prim_v.at(ivertex).Particles.size()):
+            primpart = prim_v.at(ivertex).Particles.at(iprim)
+            prim_mom = np.zeros(4,dtype=np.float32)
+            for v in range(4):
+                prim_mom[v] = primpart.GetMomentum()[v]
+            print("  primary[",iprim,"] ",primpart.GetName()," pdg=",primpart.GetPDGCode()," trackid=",primpart.GetTrackId()," mom4=",prim_mom)
+            prim_mom4_v.append(prim_mom)
+    
+    # Get Trajectory information
+    traj_v = edeptree.Event.Trajectories
+    for itraj in range(traj_v.size()):
+        traj = traj_v.at(itraj)
+        print("Trajectory[",itraj,"] trackid=",traj.GetTrackId()," nsteps=",traj.Points.size())
+        
+
+    # Get Location of Energy deposits and turn into an image
     seghit_v = edeptree.Event.SegmentDetectors["drift"]
     print("number of seghits: ",seghit_v.size())
 
     # some meta data?
     first_seghit = seghit_v.at(0)
-    
+
     depth = IEdepSim.distance_to_readout_plane # default is 128.0 cm, in the future we can vary this
     """
     PyObject* makeNumpyArrayCrop( const TG4HitSegmentContainer& hit_container, int img_pixdim,
@@ -107,6 +132,7 @@ for ientry in range(nentries):
 
     # variables to figure out
     mom4 = np.zeros(4,dtype=np.float32)
+    mom4 = prim_mom4_v[0]
     pre_edep_len = 0.0
     dedx_20pix = np.zeros(20,dtype=np.float32)
 
