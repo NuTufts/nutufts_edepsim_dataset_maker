@@ -23,6 +23,7 @@ SimpleDetShowerSchema_v0 = Unischema("SimpleDetShowerSchema",[
     UnischemaField('momentum4', np.float32, (4,), NdarrayCodec(), False), # simulated distance from readout plane, determines transverse smearing
     UnischemaField('preedeplen',np.float32, (), ScalarCodec(FloatType()), False), # distance from particle start to where first energy deposit occurs (relevant to photon)
     UnischemaField('dedx_20pix', np.float32, (20,), NdarrayCodec(), False), # dedx in first 20 pixels of start of energy deposition
+    UnischemaField('edepimage', np.float32, (256,256), NdarrayCodec(), False), # energy deposition image
 ])
 
 SchemaDict = {"v0":SimpleDetShowerSchema_v0}

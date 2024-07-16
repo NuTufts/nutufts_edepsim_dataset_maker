@@ -169,7 +169,8 @@ for ientry in range(nentries):
                   "depth":depth,
                   "momentum4":mom4,
                   "preedeplen":pre_edep_len,
-                  "dedx_20pix":dedx_20pix}
+                  "dedx_20pix":dedx_20pix,
+                  "edepimage":cropped_image}
 
     # append to data container
     data.append( dict_to_spark_row(schema,entry_data) )
