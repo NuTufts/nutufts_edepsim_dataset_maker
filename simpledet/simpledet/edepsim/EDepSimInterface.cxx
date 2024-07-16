@@ -48,6 +48,12 @@ namespace edepsim {
     max_step_size = 0.03;
     distance_to_readout_plane = 128.0;
   }
+
+  std::vector<int> EDepSimInterface::getPixelIndices( float x, float y ) const
+  {
+    std::vector<int> pix_indices;
+    
+  }
   
   std::vector<float> EDepSimInterface::processSegmentHits( const TG4HitSegmentContainer& hit_container )
   {
@@ -69,9 +75,14 @@ namespace edepsim {
     // we want to fix the start of the shower at:
     // (z=100 cm, y=0 cm)
     std::vector<float> first_edep(4,0);
+    std::cout << "first edep pos: (";
     for (int i=0; i<3; i++) {
       first_edep[i]  = (first_hit.GetStart()[i])*0.1; /// mm -> cm
+      std::cout << first_edep[i];
+      if ( i<2 )
+	std::cout << ", ";
     }
+    std::cout << ")" << std::endl;
     first_edep[3] = first_hit.GetStart()[3]; // geant4 time in ns
 
     
@@ -178,14 +189,53 @@ namespace edepsim {
 	}
 
 	// Efrac
+	int trackid = hit.GetContributors().at(0);
 	float Efrac = Estep/float(ndivs);
 	for (int ikz=-3; ikz<=3; ikz++) {
 	  for (int iky=-3; iky<=3; iky++) {
 	    int ipix = (iypix+iky)*npixels[0] + (izpix+ikz);
-	    if ( ipix>=0 && ipix<(int)image.size() )
-	      image[ipix] += Efrac*kernel[3+ikz][3+iky]/sum;
-	  }
-	}
+	    if ( ipix>=0 && ipix<(int)image.size() ) {
+	      float frac_edep = Efrac*kernel[3+ikz][3+iky]/sum;
+	      image[ipix] += frac_edep;
+	      auto it_pix = _pixinfo_map.find( (unsigned long)ipix );
+	      if ( it_pix==_pixinfo_map.end() ) {
+		// create a place to store info
+		PixInfo_t pixinfo;
+		pixinfo.pixid = (unsigned long)ipix;
+		pixinfo.indices[0] = izpix;
+		pixinfo.indices[1] = iypix;
+		pixinfo.indices[2] = 0;
+		pixinfo.trackid = trackid;
+		pixinfo.edep = frac_edep;
+		std::set<EDepInfo_t> edep_v;
+		EDepInfo_t edepinfo;
+		edepinfo.pixid = (unsigned long)ipix;
+		edepinfo.trackid = pixinfo.trackid;
+		edepinfo.edep_sum += frac_edep;
+		edep_v.insert( edepinfo );
+		_edep_map.push_back( edep_v );
+		pixinfo.container_index = _edep_map.size()-1;
+		_pixinfo_map[ ipix ] = pixinfo;
+	      }
+	      else {
+		PixInfo_t& pixinfo = it_pix->second;
+		std::set<EDepInfo_t>& edep_v = _edep_map.at( pixinfo.container_index );
+		pixinfo.edep += frac_edep;
+		auto it_edep = edep_v.find( EDepInfo_t(trackid) );
+		if ( it_edep==edep_v.end() ) {
+		  EDepInfo_t edepinfo;
+		  edepinfo.pixid = (unsigned long)ipix;
+		  edepinfo.trackid = trackid;
+		  edepinfo.edep_sum = frac_edep;
+		  edep_v.insert( edepinfo );
+		}
+		else {
+		  (*it_edep).edep_sum += frac_edep;
+		}
+	      }//end of if pixinfo found for pixel id
+	    }//end of if pixel inside image
+	  }//end of kernel y-dim (y)
+	}//end of kernel x-dim (z)
 	
       }//loop over ndivisions
       
@@ -214,7 +264,9 @@ namespace edepsim {
   }
 
   PyObject* EDepSimInterface::makeNumpyArrayCrop( const TG4HitSegmentContainer& hit_container, int img_pixdim, 
-						  int offset_x_pixels, int offset_y_pixels, int rand_pix_from_center )
+						  int offset_x_pixels, int offset_y_pixels,
+						  float threshold, int rand_pix_from_center )
+						  
   {
     
     if ( !__loaded_numpy )  {
@@ -230,6 +282,7 @@ namespace edepsim {
         
     // crop out near the center
     std::vector<float> data( img_pixdim*img_pixdim, 0.0 );
+    std::vector<int>   trackidimage( img_pixdim*img_pixdim, 0 );
     //int ipix = (iypix+iky)*npixels[0] + (izpix+ikz);    
     for (int irow=0; irow<img_pixdim; irow++) {
       // we copy npixels[0] at a given row
@@ -241,9 +294,35 @@ namespace edepsim {
       // std::cout << "  src location: " << crop_row_start*npixels[0] + crop_col_start << std::endl;      
       ///std::memcpy( data.data() + irow*img_pixdim,  vdata.data() + crop_row_start*npixels[0] + crop_col_start, sizeof(double)*img_pixdim );
       for (int icol=0; icol<img_pixdim; icol++) {
-	data[ icol*img_pixdim + irow ] = vdata[ crop_row_start*orig_ncols + crop_col_start + icol ];
-      }
-    }
+	
+	unsigned long pixid = crop_row_start*orig_ncols + crop_col_start + icol;
+	float edep = vdata[ pixid ];
+	if ( edep<threshold )
+	  continue;
+	
+	data[ icol*img_pixdim + irow ] = edep;
+
+	auto it_pix = _pixinfo_map.find( pixid );
+	if ( it_pix!=_pixinfo_map.end() ) {
+	  auto edep_v = _edep_map.at( it_pix->second.container_index );
+	  int max_id = -1;
+	  float max_edep = 0;
+	  for ( auto& edepinfo : edep_v ) {
+	    if ( edepinfo.edep_sum > max_edep ) {
+	      max_id = edepinfo.trackid;
+	      max_edep = edepinfo.edep_sum;
+	    }
+	  }
+	  if ( max_id>=0 ) {
+	    trackidimage[ icol*img_pixdim + irow ] = max_id+1;
+	  }
+	}//end of if pixel has info
+	else {
+	  if ( edep>0.0 ) 
+	    std::cout << "No pixelinfo for pixid=" << pixid << " (" << icol << "," << irow << ") edep=" << edep << std::endl;
+	}
+      }//end of col loop
+    }//end of row loop
     
     std::cout << "make array" << std::endl;
 
@@ -254,12 +333,23 @@ namespace edepsim {
     PyArrayObject* array = (PyArrayObject*)PyArray_SimpleNew( ndims, &dims[0], NPY_FLOAT );
     float* np_data = (float*)PyArray_DATA( array );
     memcpy( np_data, data.data(), sizeof(float)*data.size());
+    
+    PyArrayObject* array_trackid = (PyArrayObject*)PyArray_SimpleNew( ndims, &dims[0], NPY_INT );
+    float* np_data_trackid = (float*)PyArray_DATA( array_trackid );
+    memcpy( np_data_trackid, trackidimage.data(), sizeof(int)*trackidimage.size());
 
     delete [] dims;
 
-    return (PyObject*)array;
+    PyObject *d = PyDict_New();
+    PyObject *key_edep     = Py_BuildValue("s", "edep" );
+    PyObject *key_trackid  = Py_BuildValue("s", "trackid");
+    PyDict_SetItem( d, key_edep, (PyObject*)array );
+    PyDict_SetItem( d, key_trackid, (PyObject*)array_trackid );
+
+    return (PyObject*)d;
     
   }
 
+  
 }
 }

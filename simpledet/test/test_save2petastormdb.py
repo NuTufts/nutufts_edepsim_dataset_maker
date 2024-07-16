@@ -98,22 +98,45 @@ for ientry in range(nentries):
     prim_v = edeptree.Event.Primaries
     print("number of primary vertices: ",prim_v.size())
     prim_mom4_v = []
+    prim_pos4_v = []
+    prim_pdg_v = []
     for ivertex in range(prim_v.size()):
         print("VERTEX[",ivertex,"]")
-        for iprim in range(prim_v.at(ivertex).Particles.size()):
-            primpart = prim_v.at(ivertex).Particles.at(iprim)
+        vertex = prim_v.at(ivertex)
+        prim_pos = np.zeros(4,dtype=np.float32)
+        for v in range(3):
+            prim_pos[v] = vertex.GetPosition()[v]*0.1 # mm to cm
+        prim_pos[3] = vertex.GetPosition()[3]
+        print("  pos4=",prim_pos)
+        prim_pos4_v.append( prim_pos )
+        
+        mom4_v = []
+        pdgcode_v = []
+        for iprim in range(vertex.Particles.size()):
+            primpart = vertex.Particles.at(iprim)
             prim_mom = np.zeros(4,dtype=np.float32)
             for v in range(4):
                 prim_mom[v] = primpart.GetMomentum()[v]
-            print("  primary[",iprim,"] ",primpart.GetName()," pdg=",primpart.GetPDGCode()," trackid=",primpart.GetTrackId()," mom4=",prim_mom)
-            prim_mom4_v.append(prim_mom)
+            print("  primary[",iprim,"] ",primpart.GetName()," pdg=",primpart.GetPDGCode()," trackid=",primpart.GetTrackId())
+            print("    mom4=",prim_mom)
+            pdgcode_v.append( primpart.GetPDGCode() )
+            mom4_v.append(prim_mom)
+        prim_mom4_v.append( mom4_v )
+        prim_pdg_v.append( pdgcode_v )
+        
+
     
     # Get Trajectory information
     traj_v = edeptree.Event.Trajectories
-    for itraj in range(traj_v.size()):
-        traj = traj_v.at(itraj)
-        print("Trajectory[",itraj,"] trackid=",traj.GetTrackId()," nsteps=",traj.Points.size())
-        
+    print("Number of trajectories: ",traj_v.size())
+    #for itraj in range(traj_v.size()):
+    #    traj = traj_v.at(itraj)
+    #    print("Trajectory[",itraj,"] trackid=",traj.GetTrackId()," nsteps=",traj.Points.size())
+    first_trajpoint_pos4 = traj_v.at(0).Points.at(0).GetPosition()
+    first_edep = np.zeros(4,dtype=np.float32)
+    for v in range(3):
+        first_edep[v] = first_trajpoint_pos4[v]*0.1 # mm to cm
+    first_edep[3] = first_trajpoint_pos4[3]
 
     # Get Location of Energy deposits and turn into an image
     seghit_v = edeptree.Event.SegmentDetectors["drift"]
@@ -127,19 +150,22 @@ for ientry in range(nentries):
     PyObject* makeNumpyArrayCrop( const TG4HitSegmentContainer& hit_container, int img_pixdim,
 				  int offset_x_pixels, int offset_y_pixels, int rand_pix_from_center );
     """
-    cropped_image = IEdepSim.makeNumpyArrayCrop( seghit_v, cropsize, -64, 0, 0 )
+    threshold = 0.005
+    cropped_dict = IEdepSim.makeNumpyArrayCrop( seghit_v, cropsize, -64, 0, threshold, 0 )
+    cropped_image = cropped_dict["edep"]
     print("cropped_image.shape=",cropped_image.shape)
 
     # variables to figure out
     mom4 = np.zeros(4,dtype=np.float32)
-    mom4 = prim_mom4_v[0]
-    pre_edep_len = 0.0
+    mom4 = prim_mom4_v[0][0]
+    pre_edep_len = np.power( prim_pos4_v[0][:3]-first_edep[:3], 2 ).sum()
+    print("pre_edep_len: ",pre_edep_len)
     dedx_20pix = np.zeros(20,dtype=np.float32)
 
     entry_data = {"partition":partition_label,
                   "runid":args.runid,
                   "entry":ientry,
-                  "pdgcode":args.pdgcode,
+                  "pdgcode":prim_pdg_v[0][0],
                   "depth":depth,
                   "momentum4":mom4,
                   "preedeplen":pre_edep_len,
@@ -150,23 +176,36 @@ for ientry in range(nentries):
 
     # set conditional to true to visualize entry
     if False:
-        c1 = rt.TCanvas("c1","",1600,600)
-        c1.Divide(2,1)
+        c1 = rt.TCanvas("c1","",1600,1200)
+        c1.Divide(1,2)
         himage = IEdepSim.makeWholeDetectorTH2D( seghit_v )
         c1.cd(1)
         c1.cd(1).SetGridx(1)
         c1.cd(1).SetGridy(1)    
         himage.Draw("colz")
 
+        c1.cd(2).Divide(3,1)
+
         #hcrop = rt.TH2D("hcrop","",cropsize,-0.5*cropsize*0.3,0.5*cropsize*0.3,cropsize,-0.5*cropsize*0.3,0.5*cropsize*0.3)
-        hcrop = rt.TH2D("hcrop","",cropsize,0,cropsize,cropsize,0,cropsize)
+        hcrop     = rt.TH2D("hcrop","",cropsize,0,cropsize,cropsize,0,cropsize)
+        hcrop_tid = rt.TH2D("hcrop_tid","",cropsize,0,cropsize,cropsize,0,cropsize)
+        hedep     = rt.TH1D("hedep","",50,0,1.0)
         for i in range(cropsize):
             for j in range(cropsize):
                 hcrop.SetBinContent(i+1,j+1,cropped_image[i,j])
-        c1.cd(2)
-        c1.cd(2).SetGridx(1)
-        c1.cd(2).SetGridy(1)        
+                hcrop_tid.SetBinContent(i+1,j+1,cropped_dict['trackid'][i,j])
+                if cropped_image[i,j]>0.1*threshold:
+                    hedep.Fill( cropped_image[i,j] )
+        c1.cd(2).cd(1)
+        c1.cd(2).cd(1).SetGridx(1)
+        c1.cd(2).cd(1).SetGridy(1)        
         hcrop.Draw("colz")
+        c1.cd(2).cd(2)
+        c1.cd(2).cd(2).SetGridx(1)
+        c1.cd(2).cd(2).SetGridy(1)        
+        hcrop_tid.Draw("colz")
+        c1.cd(2).cd(3)
+        hedep.Draw("hist")
         c1.Update()
         print("[ENTER] to continue")
         input()
