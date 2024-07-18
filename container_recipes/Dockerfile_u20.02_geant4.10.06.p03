@@ -1,0 +1,15 @@
+FROM larbys/root:v6.24.02_u20.04
+
+MAINTAINER taritree.wongjirad@tufts.edu
+
+# PRE-REQS
+RUN apt-get update -y && apt-get install -y libxerces-c-dev cmake libx11-dev libglu1-mesa-dev libglew-dev libxmu-dev && apt-get clean -y
+
+# INSTALL GEANT4
+RUN mkdir -p /usr/local/geant/build && mkdir -p /usr/local/geant/source && \
+    cd /usr/local/geant/source && \
+    wget http://cern.ch/geant4-data/releases/geant4.10.06.p03.tar.gz && tar -zxvf geant4.10.06.p03.tar.gz && \
+    cd /usr/local/geant/build && \
+    cmake  -DCMAKE_INSTALL_PREFIX=/usr/local/geant/geant4.10.06.p03 -DGEANT4_INSTALL_DATA=ON -DGEANT4_USE_GDML=ON -DGEANT4_USE_OPENGL_X11=ON /usr/local/geant/source/geant4.10.06.p03/ && \
+    make install -j4 && \
+    cd /usr/local/geant && rm -r source && rm -r /usr/local/geant/build

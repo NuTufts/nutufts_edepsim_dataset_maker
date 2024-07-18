@@ -1,0 +1,18 @@
+FROM larbys/geant4:4.10.06.p03_root6_opengl
+
+MAINTAINER taritree.wongjirad@tufts.edu
+
+# PRE-REQS
+RUN apt-get update -y && \
+    apt-get install -y openjdk-11-jdk python3-pip && \
+    apt-get clean -y && \
+    rm -rf /var/lib/apt/lists/
+
+# INSTALL TORCH
+RUN pip3 install torch==1.13.1+cpu torchvision==0.14.1+cpu torchaudio==0.13.1 --extra-index-url https://download.pytorch.org/whl/cpu
+
+# INSTALL (OLDER) PYSPARK/PYARROW FOR PETASTORM
+RUN pip3 install pyspark==3.2.0 pyarrow==5.0.0
+
+# INSTALL PETASTORM
+RUN pip3 install petastorm[docs,test,torch]
