@@ -19,7 +19,6 @@ export SIMPLEDET_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/simpledet/
 export SIMPLEDET_LIB_DIR=${SIMPLEDET_DIR}/build/lib/
 export SIMPLEDET_PYTHON_DIR=${SIMPLEDET_DIR}/python/
 export PETASTORM_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/petastorm/
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
 [[ ":$PATH:" != *":${EDEPSIM_BIN_DIR}:"* ]] && export PATH="${EDEPSIM_BIN_DIR}:${PATH}"
 [[ ":$LD_LIBRARY_PATH:" != *":${EDEPSIM_LIB_DIR}:"* ]] && export LD_LIBRARY_PATH="${EDEPSIM_LIB_DIR}:${LD_LIBRARY_PATH}"
@@ -120,6 +119,7 @@ else
     echo "DEFAULT SETUP (COMPAT WITH SINGULARITY CONTAINER)"
     source /usr/local/root/bin/thisroot.sh
     source /usr/local/geant/geant4.10.06.p03/bin/geant4.sh
+    export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 
     export CUDA_HOME=/usr/local/cuda/
     [[ ":$LD_LIBRARY_PATH:" != *":${CUDA_HOME}/lib64:"* ]] && export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
