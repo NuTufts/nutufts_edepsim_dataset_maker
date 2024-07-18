@@ -26,6 +26,8 @@ parser.add_argument('--port',required=False,type=int,default=4000,
                     help='Set the starting port number for the spark web UI')
 parser.add_argument('-ow',"--over-write",default=False,action='store_true',
                     help="If flag given, will overwrite existing database chunk without user check")
+parser.add_argument("--visualize", '-v', required=False, action='store_true', default=False,
+                    help='if flag provided, will visualize the images made before moving to next entry')
 
 cropsize = 256
 
@@ -146,10 +148,17 @@ for ientry in range(nentries):
     first_seghit = seghit_v.at(0)
 
     depth = IEdepSim.distance_to_readout_plane # default is 128.0 cm, in the future we can vary this
+
+    # process the edep sim information and make the 2D projection readout plane image
+    isgood = IEdepSim.processSegmentHits( seghit_v )
+    
     """
     PyObject* makeNumpyArrayCrop( const TG4HitSegmentContainer& hit_container, int img_pixdim,
 				  int offset_x_pixels, int offset_y_pixels, int rand_pix_from_center );
     """
+
+    # make cropped images
+    
     threshold = 0.005
     cropped_dict = IEdepSim.makeNumpyArrayCrop( seghit_v, cropsize, -64, 0, threshold, 0 )
     cropped_image = cropped_dict["edep"]
@@ -176,7 +185,7 @@ for ientry in range(nentries):
     data.append( dict_to_spark_row(schema,entry_data) )
 
     # set conditional to true to visualize entry
-    if False:
+    if args.visualize:
         c1 = rt.TCanvas("c1","",1600,1200)
         c1.Divide(1,2)
         himage = IEdepSim.makeWholeDetectorTH2D( seghit_v )
@@ -185,17 +194,19 @@ for ientry in range(nentries):
         c1.cd(1).SetGridy(1)    
         himage.Draw("colz")
 
-        c1.cd(2).Divide(3,1)
+        c1.cd(2).Divide(4,1)
 
         #hcrop = rt.TH2D("hcrop","",cropsize,-0.5*cropsize*0.3,0.5*cropsize*0.3,cropsize,-0.5*cropsize*0.3,0.5*cropsize*0.3)
-        hcrop     = rt.TH2D("hcrop","",cropsize,0,cropsize,cropsize,0,cropsize)
-        hcrop_tid = rt.TH2D("hcrop_tid","",cropsize,0,cropsize,cropsize,0,cropsize)
-        hedep     = rt.TH1D("hedep","",50,0,1.0)
+        hcrop        = rt.TH2D("hcrop","Deposited Energy",cropsize,0,cropsize,cropsize,0,cropsize)
+        hcrop_tid    = rt.TH2D("hcrop_tid","Track IDs",cropsize,0,cropsize,cropsize,0,cropsize)
+        hcrop_tsteps = rt.TH2D("hcrop_tsteps","Time step indices",cropsize,0,cropsize,cropsize,0,cropsize)        
+        hedep        = rt.TH1D("hedep","Pixel Edep; MeV;num pixels",50,0,1.0)
         for i in range(cropsize):
             for j in range(cropsize):
-                hcrop.SetBinContent(i+1,j+1,cropped_image[i,j])
-                hcrop_tid.SetBinContent(i+1,j+1,cropped_dict['trackid'][i,j])
                 if cropped_image[i,j]>0.1*threshold:
+                    hcrop.SetBinContent(i+1,j+1,cropped_image[i,j])
+                    hcrop_tid.SetBinContent(i+1,j+1,cropped_dict['trackid'][i,j])
+                    hcrop_tsteps.SetBinContent(i+1,j+1,cropped_dict['timestepmask'][i,j])
                     hedep.Fill( cropped_image[i,j] )
         c1.cd(2).cd(1)
         c1.cd(2).cd(1).SetGridx(1)
@@ -206,11 +217,12 @@ for ientry in range(nentries):
         c1.cd(2).cd(2).SetGridy(1)        
         hcrop_tid.Draw("colz")
         c1.cd(2).cd(3)
-        hedep.Draw("hist")
+        hcrop_tsteps.Draw("colz")
+        c1.cd(2).cd(4)
+        hedep.Draw("hist")        
         c1.Update()
         print("[ENTER] to continue")
         input()
-        break
 
 
 if not args.do_not_write_to_db:

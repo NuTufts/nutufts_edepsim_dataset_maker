@@ -20,13 +20,14 @@ namespace edepsim {
     EDepSimInterface();
     virtual ~EDepSimInterface() {};
 
-    std::vector<float> processSegmentHits( const TG4HitSegmentContainer& hit_container );
+    bool processSegmentHits( const TG4HitSegmentContainer& hit_container );
     TH2D* makeWholeDetectorTH2D( const TG4HitSegmentContainer& hit_container );
     PyObject* makeNumpyArrayCrop( const TG4HitSegmentContainer& hit_container, int img_pixdim,
 				  int offset_x_pixels, int offset_y_pixels,
 				  float threshold, int rand_pix_from_center );
+    void clear();
 
-    std::vector<int> getPixelIndices( float x, float y ) const;
+    //std::vector<int> getPixelIndices( float x, float y ) const;
     
     int padding[2];
     float pixelsize[2];
@@ -39,6 +40,10 @@ namespace edepsim {
     float max_step_size;
     float distance_to_readout_plane;
 
+    float min_ionization_sigma_width;
+    float max_depth;
+    
+    int num_edep_quantiles;
 
     struct PixInfo_t {
       unsigned long pixid;
@@ -46,12 +51,29 @@ namespace edepsim {
       unsigned long container_index;
       long trackid;
       float edep;
+      float t;
       PixInfo_t() {
 	pixid = 4294967294;
+	t = std::numeric_limits<float>::max();
       };
       bool operator<( const PixInfo_t& rhs ) const {
 	if ( pixid<rhs.pixid )
 	  return true;
+	return false;
+      };
+    };
+
+    struct SortByTime_t {
+      bool operator()( PixInfo_t& a, PixInfo_t& b ) const {
+	if ( a.t < b.t ) {
+	  // first ordering variable is time
+	  return true;
+	}
+	else if (a.t==b.t ) {
+	  // next ordering variable is energy deposited
+	  if ( a.edep>b.edep )
+	    return true;
+	}
 	return false;
       };
     };
@@ -85,6 +107,9 @@ namespace edepsim {
     
     std::map< unsigned long, PixInfo_t > _pixinfo_map;
     std::vector< std::set<EDepInfo_t> >  _edep_map;
+    std::vector< float > _readout_image;
+    bool _readout_image_isgood;
+    float _readout_image_origin_cm[3];
 
     
   private:
