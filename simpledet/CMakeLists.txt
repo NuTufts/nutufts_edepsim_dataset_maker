@@ -14,7 +14,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 ## Dependencies
 
 #---CERN ROOT (required)
-find_package(ROOT CONFIG REQUIRED)
+find_package(ROOT REQUIRED)
 # we set the compiler version based on the one used for ROOT
 execute_process(
     COMMAND bash "-c" "root-config --features | awk '{print $1}'"
@@ -29,6 +29,7 @@ else ()
   message( STATUS "using cxx11")  
   set(CMAKE_CXX_STANDARD 11)
 endif()
+include(${ROOT_USE_FILE})
 
 #--- EDEPSIM (required) ---
 set(  EDEPSIM_DIR $ENV{EDEPSIM_DIR}/share/EDepSim )
@@ -59,8 +60,6 @@ endif()
 
 ## Setup
 
-#---Define useful ROOT functions and macros (e.g. ROOT_GENERATE_DICTIONARY)
-include(${ROOT_USE_FILE})
 
 ## Add Source
 

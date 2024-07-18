@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.10)
 set( MODULE_NAME core )
 set( LIBNAME simpledet_${MODULE_NAME} )
 

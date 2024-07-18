@@ -9,6 +9,7 @@
 #include <numpy/ndarrayobject.h>
 #endif
 
+#include <iostream>
 #include <cmath>
 
 namespace simpledet {

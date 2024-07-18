@@ -1,9 +1,5 @@
 import os,sys
 import argparse,signal
-import numpy as np
-from pyspark.sql import SparkSession
-from petastorm.etl.dataset_metadata import materialize_dataset
-from petastorm.unischema import dict_to_spark_row
 
 parser = argparse.ArgumentParser(
     prog='test_save2petasormdb.py',
@@ -27,9 +23,14 @@ parser.add_argument('--port',required=False,type=int,default=4000,
 parser.add_argument('-ow',"--over-write",default=False,action='store_true',
                     help="If flag given, will overwrite existing database chunk without user check")
 
+# Set arguments and other parameters
 cropsize = 256
-
 args = parser.parse_args()
+
+import numpy as np
+from pyspark.sql import SparkSession
+from petastorm.etl.dataset_metadata import materialize_dataset
+from petastorm.unischema import dict_to_spark_row
 
 # we need ROOT, because EdepSim writes to ROOT by default. So we load it.
 import ROOT as rt
