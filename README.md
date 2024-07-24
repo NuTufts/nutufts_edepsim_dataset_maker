@@ -2,6 +2,10 @@
 
 This is a repository of code to make toy datasets for ML/AI experiments for LArTPCs.
 
+See below for example commands to complete the initial setup and build the programs you need.
+
+Also see the folder `troubleshooting` for a record of tricky errors that we've run into.
+
 ## Initial Setup and Making a first test dataset
 
 ```
