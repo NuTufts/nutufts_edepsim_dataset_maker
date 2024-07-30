@@ -7,3 +7,6 @@
 [submodule "petastorm"]
 	path = petastorm
 	url = https://github.com/NuTufts/petastorm.git
+[submodule "DarkNews-generator"]
+	path = darknews/DarkNews-generator
+	url = https://github.com/NuTufts/DarkNews-generator.git
