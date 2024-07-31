@@ -2,6 +2,7 @@ Bootstrap: docker
 From: larbys/simpledet_petastorm:u20.04_geant4.10.06.p03
 
 %post
-	pip3 install dill==0.3.8 numpy==1.24.4 scipy==1.10.1 pandas==2.0.3 \
-	  vegas==6.1.2 pyparsing==3.1.2 matplotlib==3.7.5 pyhepmc==2.13.4
+	apt update -y && apt install -y software-properties-common && add-apt-repository -y ppa:deadsnakes/ppa && apt update -y && apt install -y python3.9 python3.9-dev && apt clean -y
+	python3.9 -m pip install dill==0.3.8 numpy==1.24.4 scipy==1.11 pandas==2.0.3 \
+	  vegas==6.1.2 hepunits==2.3.4 particle==0.24.0 pyparsing==3.1.2 matplotlib==3.7.5 pyhepmc==2.13.4
 	mkdir -p /cluster/home
