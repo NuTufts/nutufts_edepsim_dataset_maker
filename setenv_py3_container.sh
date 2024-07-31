@@ -20,7 +20,7 @@ export SIMPLEDET_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/simpledet/
 export SIMPLEDET_LIB_DIR=${SIMPLEDET_DIR}/build/lib/
 export SIMPLEDET_PYTHON_DIR=${SIMPLEDET_DIR}/python/
 export PETASTORM_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/petastorm/
-export DARKNEWS_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/darknews/python/lib/python/DarkNews-0.4.5-py3.8-linux-x86_64.egg
+export DARKNEWS_DIR=`pwd`/`dirname "${BASH_SOURCE[0]}"`/darknews/install/lib/python3.9/site-packages/
 
 [[ ":$PATH:" != *":${EDEPSIM_BIN_DIR}:"* ]] && export PATH="${EDEPSIM_BIN_DIR}:${PATH}"
 [[ ":$LD_LIBRARY_PATH:" != *":${EDEPSIM_LIB_DIR}:"* ]] && export LD_LIBRARY_PATH="${EDEPSIM_LIB_DIR}:${LD_LIBRARY_PATH}"
