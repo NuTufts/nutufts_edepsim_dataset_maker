@@ -87,7 +87,8 @@ elif [ $MACHINE == "pop-os" ]
 then
     echo "SETUP TARITREE's RAZER BLADE PRO"
     #source /home/twongjirad/software/root/build_gcc11/bin/thisroot.sh
-    source /usr/local/root_6.32.02/bin/thisroot.sh
+    #source /usr/local/root_6.32.02/bin/thisroot.sh
+    source /usr/local/root_v6.28.12_py3.10/bin/thisroot.sh
 
     export CUDA_HOME=/usr/lib/cuda/
     [[ ":$LD_LIBRARY_PATH:" != *":${CUDA_HOME}/lib64:"* ]] && export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
