@@ -1,0 +1,32 @@
+# Create electrons with momenta drawn from a uniform distribution
+
+/edep/random/timeRandomSeed
+
+# set edep
+/edep/db/set/saveAllPrimTraj true
+/edep/db/set/lengthThreshold 0.5 mm
+/edep/db/set/trajectoryAccuracy 0.5 mm
+/edep/db/set/neutronThreshold 10 MeV
+/edep/db/set/gammaThreshold 5.0 MeV
+/edep/hitLength LArD 0.5 mm
+/edep/hitLength drift 0.5 mm
+/edep/hitLength cryo 0.5 mm
+/edep/phys/allCuts 0.5 mm
+/edep/update
+
+# Set generator
+/generator/kinematics/set hepevt
+/generator/kinematics/hepevt/input example_hepevt.mac
+/gps/position 0.0 0.0 -50.0 cm
+
+/control/verbose 1
+/run/verbose 1
+/tracking/verbose 1
+/event/verbose 1
+
+/run/initialize
+
+# Turn off optical processes
+/process/inactivate Cerenkov
+
+#/run/beamOn 1
