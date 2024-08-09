@@ -15,8 +15,7 @@
 /edep/update
 
 # Set generator
-/gps/particle e-
-#/gps/particle gamma
+/gps/particle gamma
 /gps/position 0.0 0.0 -50.0 cm
 /gps/ene/type Mono
 /gps/ene/mono 100 MeV
