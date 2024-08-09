@@ -90,8 +90,9 @@ then
     #source /usr/local/root_6.32.02/bin/thisroot.sh
     source /usr/local/root_v6.28.12_py3.10/bin/thisroot.sh
 
-    export CUDA_HOME=/usr/lib/cuda/
+    export CUDA_HOME=/usr/local/cuda-11.6
     [[ ":$LD_LIBRARY_PATH:" != *":${CUDA_HOME}/lib64:"* ]] && export LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
+    [[ ":$PATH:" != *":${CUDA_HOME}/bin:"* ]] && export PATH="${CUDA_HOME}/bin:${PATH}"
 
     export OPENCV_INCDIR=/usr/include/opencv4
     export OPENCV_LIBDIR=/usr/lib/x86_64-linux-gnu/

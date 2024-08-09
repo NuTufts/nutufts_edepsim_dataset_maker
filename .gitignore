@@ -3,3 +3,6 @@
 *.root
 simpledet/build/*
 *.sif
+*.hdf*
+*aho
+*.txt
