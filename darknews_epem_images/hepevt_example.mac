@@ -14,10 +14,13 @@
 /edep/phys/allCuts 0.5 mm
 /edep/update
 
-# Set generator
+# Set the generators for the kinematics and position
+/generator/position/set fixed
 /generator/kinematics/set hepevt
-/generator/kinematics/hepevt/input example_hepevt.mac
-/gps/position 0.0 0.0 -50.0 cm
+# Set the parameters for the generators
+/generator/position/fixed/position 0.0 0.0 -50.0 cm
+/generator/kinematics/hepevt/input example_hepevt.txt
+/generator/kinematics/hepevt/flavor marley
 
 /control/verbose 1
 /run/verbose 1
