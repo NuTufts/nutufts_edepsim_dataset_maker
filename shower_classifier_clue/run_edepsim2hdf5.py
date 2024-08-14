@@ -117,13 +117,14 @@ for ientry in range(nentries):
     # get struct with variables we will fill:
     entry_data = EntryData()
     entry_data.entryindex = args.start_index + ientry
+    print("entryindex=",entry_data.entryindex)
 
     # Get Primary Information
     prim_v = edeptree.Event.Primaries
     print("number of primary vertices: ",prim_v.size())
     nparticles = 0
     for ivertex in range(prim_v.size()):
-        print("VERTEX[",ivertex,"]")
+        #print("VERTEX[",ivertex,"]")
         vertex = prim_v.at(ivertex)
 
         for iprim in range(vertex.Particles.size()):

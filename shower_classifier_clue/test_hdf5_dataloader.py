@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(
     epilog='Text at the bottom of help')
 
 parser.add_argument('--input', '-i', required=True, type=str,
-                    help='path to hdf-file')
+                    help='path to hdf-file or folder')
 parser.add_argument('--niterations', '-n', required=False, type=int, default=5,
                     help='number of iterations')
 parser.add_argument("--visualize", '-v', required=False, default=False,action='store_true',
@@ -22,47 +22,23 @@ import h5py
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
+from hdf5dataset import HDF5Dataset, get_data_loader
 if args.visualize:
     import ROOT as rt
     rt.gStyle.SetOptStat(0)
 
-# Example of defining a data loader class
-class HDF5Dataset(Dataset):
-    def __init__(self, file_paths):
-        self.file_paths = file_paths
-        self.dataset_lengths = []
-        self.cumulative_lengths = [0]
-        # we have to scan the files to map out which file has which indices
-        for file_path in file_paths:
-            with h5py.File(file_path, 'r') as hf:
-                length = len(hf.keys()) // 5  # Divide by number of columns in each entry
-                self.dataset_lengths.append(length)
-                self.cumulative_lengths.append(self.cumulative_lengths[-1] + length)
-        
-    def __len__(self):
-        return self.cumulative_lengths[-1]
-    
-    def __getitem__(self, idx):
-        file_idx = np.searchsorted(self.cumulative_lengths, idx, side='right') - 1
-        local_idx = idx - self.cumulative_lengths[file_idx]
-        
-        with h5py.File(self.file_paths[file_idx], 'r') as hf:
-            img = np.array(hf[f'img_{local_idx}'])
-            class_idx = np.array(hf[f'class_{local_idx}'])
-        
-        # Convert to torch tensor and normalize if needed
-        img_tensor = torch.from_numpy(img).float()
-        
-        return img_tensor, torch.tensor(class_idx, dtype=torch.long)
 
-# Usage example
-def get_data_loader(file_paths, batch_size=2, num_workers=1):
-    dataset = HDF5Dataset(file_paths)
-    return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
-
+finput_v = []
+if os.path.isdir( args.input ):
+    flist = os.listdir( args.input )
+    for f in flist:
+        finput_v.append( args.input + "/" + f.strip() )
+else:
+    # single file
+    finput_v = [args.input]
 
 batch_size = args.batchsize
-hdf5_filelist = [args.input]
+hdf5_filelist = finput_v
 train_loader = get_data_loader(hdf5_filelist, batch_size=batch_size)
 print("Number of entries in the data loader: ", len(train_loader))
 
@@ -99,6 +75,7 @@ while iiter<args.niterations:
                 for ix in range(imgshape[0]):
                     for iy in range(imgshape[1]):
                         h.SetBinContent( ix+1, iy+1, images[ib,ix,iy] )
+                h.SetMaximum(2.0)
                 h.Draw("colz")
                 hbatch_v.append(h)
         if args.visualize:

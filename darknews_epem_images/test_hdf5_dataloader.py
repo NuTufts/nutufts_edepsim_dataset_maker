@@ -13,6 +13,9 @@ parser.add_argument('--niterations', '-n', required=False, type=int, default=5,
                     help='number of iterations')
 parser.add_argument("--visualize", '-v', required=False, default=False,action='store_true',
                     help='if flag provided, will draw images in the batch')
+parser.add_argument("--batchsize", '-b', required=False, default=4, type=int,
+                    help="Batch size per iteration")
+
 
 args = parser.parse_args()
 
@@ -57,52 +60,59 @@ def get_data_loader(file_paths, batch_size=2, num_workers=1):
     return DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers)
 
 
-batch_size=2
+batch_size=args.batchsize
 hdf5_filelist = [args.input]
 train_loader = get_data_loader(hdf5_filelist,batch_size=batch_size,num_workers=1)
 print("Number of batches in the data loader: ", len(train_loader))
 print("batch_size=",batch_size)
 
 if args.visualize:
-    nrows = int(batch_size/5)
-    ncols = 5
+    max_col = 4
+    if batch_size<3:
+        nrows = 1
+    else:
+        nrows = int(batch_size/3)
+    
+    ncols = max_col
     if nrows<1:
-        if batch_size<5:
-            ncols = batchsize
+        if batch_size<max_col:
+            ncols = batch_size
             
-    c = rt.TCanvas("c","batch images",500*batch_size, (nrows+1)*600)
-    c.Divide( batch_size, nrows+1 )
+    c = rt.TCanvas("c","batch images",500*ncols, nrows*400)
+    c.Divide( ncols, nrows )
     c.Draw()
 
-iiter = 0
+    iiter = 0
 while iiter<args.niterations:
     for batch_idx, (images, labels) in enumerate(train_loader):
         print("--------------------------------------")
         print("iteration[",iiter,"] batchidx[",batch_idx,"]")
         print(images.shape)
+        hbatch_v = []
         for ib in range(images.shape[0]):
             print("[",ib,"] sum=",images[ib,:,:].sum()," img>0.05=",(images[ib,:,:]>0.05).sum())
-        print("labels: ",labels)
+
+            if args.visualize:
+                imgshape = images[ib].shape
+                c.cd(ib+1)
+                h = rt.TH2D( "h%d"%(ib),"batch[%d] classindex=%d"%(ib,labels[ib]), imgshape[0], 0, imgshape[0], imgshape[1], 0, imgshape[1] )
+                for ix in range(imgshape[0]):
+                    for iy in range(imgshape[1]):
+                        h.SetBinContent( ix+1, iy+1, images[ib,ix,iy] )
+                h.SetMaximum(2.0)
+                h.Draw("colz")
+                hbatch_v.append(h)
+        if args.visualize:
+            c.Update()
+            print("[entry] to continue")
+            input()
+            for h in hbatch_v:
+                del h
+
         iiter += 1
         if iiter>=args.niterations:
             break
 
-    # if args.visualize:
-    #     imgshape = batch['edepimage'].shape
-    #     hbatch_v = []
-    #     for b in range(batch_size):
-    #         c.cd(b+1)
-    #         h = rt.TH2D( "h%d"%(b),"batch[%d] entry[%d][%d]"%(b,batch['entryindex'][b,0],batch['entryindex'][b,1]), imgshape[1], 0, imgshape[1], imgshape[2], 0, imgshape[2] )
-    #         for ix in range(imgshape[1]):
-    #             for iy in range(imgshape[2]):
-    #                 h.SetBinContent( ix+1, iy+1, batch['edepimage'][b,ix,iy] )
-    #         h.Draw("colz")
-    #         hbatch_v.append(h)
-    #     c.Update()
-    #     print("[entry] to continue")
-    #     input()
-    #     for h in hbatch_v:
-    #         del h
 
 print("closing ... (pause to allow dataloader threads to finish)")
 time.sleep(0.2)
